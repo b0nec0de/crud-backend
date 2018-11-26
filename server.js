@@ -1,29 +1,20 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv')
 
-var app = express();
+const app = express();
+dotenv.config()
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use(bodyParser.json())
-
-app.use(function (req, res) {
-  res.setHeader('Content-Type', 'text/plain')
-  res.write('you posted:\n')
-  res.end(JSON.stringify(req.body, null, 2))
-})
-
-
 app.get('/', function (req, res) {
-  console.log('get');
-  res.send('Hello');
+  res.send('Hello World');
 });
 
-app.post('/incoming', function (req, res) {
-  console.log('post');
-  res.send('World!');
+app.post('/auth', function (req, res) {
+  res.send(`Hello ${req.body.email}`);
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(process.env.CRUD_PORT, function () {
+  console.log(`Example app listening on port ${process.env.CRUD_PORT}!`);
 });
