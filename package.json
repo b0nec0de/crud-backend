@@ -1,0 +1,21 @@
+{
+  "name": "crud",
+  "version": "1.0.0",
+  "description": "a crud app",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://a_bondarev@bitbucket.org/msignat/crud-backend.git"
+  },
+  "author": "Anton Bondarev",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/msignat/crud-backend#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "nodemon": "^1.18.6"
+  }
+}
