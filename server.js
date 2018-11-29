@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 dotenv.config()
@@ -12,6 +12,17 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 
 const app = express();
+
+//using cookie to verification //
+
+// const cookiesMiddleware = require('universal-cookie-express');
+
+// app
+//   .use(cookiesMiddleware())
+//   .use(function(req, res) {
+//     // get the user cookies using universal-cookie
+//     req.universalCookies.get('myCat')
+//   });
 
 const port = process.env.CRUD_PORT;
 
@@ -31,6 +42,9 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 app.use(cors());
+
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+// app.use(cookieParser);
 
 // Routes //
 
@@ -62,7 +76,6 @@ const apiRoutes = express.Router();
 // route to authenticate a user
 // http://localhost:3001/api/authenticate
 apiRoutes.post('/auth', function (req, res) {
-
   // find the user
   User.findOne({
     email: req.body.email
@@ -81,10 +94,10 @@ apiRoutes.post('/auth', function (req, res) {
 
         // if user is found and password is right
         // create a token
-        var payload = {
+        const payload = {
           admin: user.admin
         }
-        var token = jwt.sign(payload, app.get('superSecret'), {
+        const token = jwt.sign(payload, app.get('superSecret'), {
           expiresIn: 86400 // expires in 24 hours
         });
 
