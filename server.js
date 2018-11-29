@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 dotenv.config()
@@ -11,7 +13,7 @@ const config = require('./config');
 
 const app = express();
 
-const port = process.env.PORT || 3001;
+const port = process.env.CRUD_PORT;
 
 const User = require('./user');
 
@@ -26,24 +28,20 @@ app.set('superSecret', config.secret);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, X-Auth-Token, Content-Type, Accept");
-  res.header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-  next();
-});
-
 app.use(morgan('dev'));
 
-// routes //
+app.use(cors());
+
+// Routes //
+
+// adding new user 
 
 app.get('/setup', function (req, res) {
-  let user = new User({
+  const user = new User({
     email: 'test@mail.com',
     password: '234',
     admin: true
   });
-
   user.save(function (err) {
     if (err) throw err;
 
@@ -52,7 +50,7 @@ app.get('/setup', function (req, res) {
   });
 });
 
-// basic route (http://localhost:8080)
+// basic route (http://localhost:3001)
 app.get('/', function (req, res) {
   res.send('Hello! The API is at http://localhost:' + port);
 });
@@ -62,12 +60,12 @@ app.get('/', function (req, res) {
 const apiRoutes = express.Router();
 
 // route to authenticate a user
-// http://localhost:8080/api/authenticate
+// http://localhost:3001/api/authenticate
 apiRoutes.post('/auth', function (req, res) {
 
   // find the user
   User.findOne({
-    name: req.body.name
+    email: req.body.email
   }, function (err, user) {
 
     if (err) throw err;
@@ -76,9 +74,9 @@ apiRoutes.post('/auth', function (req, res) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
     } else if (user) {
 
-      // check if password and email matches
-      if (user.password != req.body.password || user.email != req.body.email) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password or email.' });
+      // check if password matches
+      if (user.password !== req.body.password) {
+        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
       } else {
 
         // if user is found and password is right
@@ -106,7 +104,7 @@ apiRoutes.post('/auth', function (req, res) {
 apiRoutes.use(function (req, res, next) {
 
   // check header or url parameters or post parameters for token
-  let token = req.body.token || req.query.token || req.headers['x-access-token'];
+  const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
   // decode token
   if (token) {
@@ -146,7 +144,7 @@ apiRoutes.get('/users', function (req, res) {
 app.use('/', apiRoutes);
 
 
-TODO:
+TODO: //make another button (sign up)
 // saving to the database upon submit //
 
 // app.post('/auth', function (req, res) {
