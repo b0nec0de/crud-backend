@@ -11,11 +11,11 @@ const config = require('./config');
 
 const app = express();
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3001;
 
 const User = require('./user');
 
-mongoose.connect('mongodb://localhost/crud', { useNewUrlParser: true });
+mongoose.connect(config.database, { useNewUrlParser: true });
 
 const db = mongoose.connection;
 db.on('error', (err) => console.log('connection error', err));
@@ -26,18 +26,25 @@ app.set('superSecret', config.secret);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, X-Auth-Token, Content-Type, Accept");
+  res.header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+  next();
+});
+
 app.use(morgan('dev'));
 
 // routes //
 
 app.get('/setup', function (req, res) {
-  let nick = new User({
-    name: 'Nick',
-    password: '123',
+  let user = new User({
+    email: 'test@mail.com',
+    password: '234',
     admin: true
   });
 
-  nick.save(function (err) {
+  user.save(function (err) {
     if (err) throw err;
 
     console.log('User saved successfully');
@@ -47,7 +54,7 @@ app.get('/setup', function (req, res) {
 
 // basic route (http://localhost:8080)
 app.get('/', function (req, res) {
-  res.send('Hello! The API is at http://localhost:' + port + '/api');
+  res.send('Hello! The API is at http://localhost:' + port);
 });
 
 // API ROUTES //
@@ -56,7 +63,7 @@ const apiRoutes = express.Router();
 
 // route to authenticate a user
 // http://localhost:8080/api/authenticate
-apiRoutes.post('/authenticate', function (req, res) {
+apiRoutes.post('/auth', function (req, res) {
 
   // find the user
   User.findOne({
@@ -69,9 +76,9 @@ apiRoutes.post('/authenticate', function (req, res) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
     } else if (user) {
 
-      // check if password matches
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+      // check if password and email matches
+      if (user.password != req.body.password || user.email != req.body.email) {
+        res.json({ success: false, message: 'Authentication failed. Wrong password or email.' });
       } else {
 
         // if user is found and password is right
@@ -125,8 +132,8 @@ apiRoutes.use(function (req, res, next) {
 });
 
 // route to show a random message (GET http://localhost:8080/api/)
-apiRoutes.get('/', function (req, res) {
-  res.json({ message: 'Welcome to the cooolest API on earth!' });
+apiRoutes.get('/app', function (req, res) {
+  res.json({ message: 'Welcome to the cooolest app on earth!' });
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
@@ -136,14 +143,11 @@ apiRoutes.get('/users', function (req, res) {
   });
 });
 
-app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 
-// app.get('/', function (req, res) {
-//   res.send('Hello World');
-// });
-
-// const User = require('./user');
+TODO:
+// saving to the database upon submit //
 
 // app.post('/auth', function (req, res) {
 //   const user = new User(req.body);
