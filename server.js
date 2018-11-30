@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
 // const cookieParser = require('cookie-parser');
+// const cookiesMiddleware = require('universal-cookie-express');
 const mongoose = require('mongoose');
 
 dotenv.config()
@@ -12,17 +13,6 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 
 const app = express();
-
-//using cookie to verification //
-
-// const cookiesMiddleware = require('universal-cookie-express');
-
-// app
-//   .use(cookiesMiddleware())
-//   .use(function(req, res) {
-//     // get the user cookies using universal-cookie
-//     req.universalCookies.get('myCat')
-//   });
 
 const port = process.env.CRUD_PORT;
 
@@ -46,23 +36,15 @@ app.use(cors());
 // app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 // app.use(cookieParser);
 
+// getting access to cookies //
+// app
+//   .use(cookiesMiddleware())
+//   .use(function (req, res) {
+//     req.universalCookies.get(req.body.token)
+//     res.json(req.body.token)
+//   });
+
 // Routes //
-
-// adding new user hardcoding
-
-app.get('/setup', function (req, res) {
-  const user = new User({
-    email: 'test@mail.com',
-    password: '234',
-    admin: true
-  });
-  user.save(function (err) {
-    if (err) throw err;
-
-    console.log('User saved successfully');
-    res.json({ success: true });
-  });
-});
 
 // basic route (http://localhost:3001)
 app.get('/', function (req, res) {
@@ -74,6 +56,7 @@ app.get('/', function (req, res) {
 const apiRoutes = express.Router();
 
 // route to sign up a new user and add a record to the database
+// http://localhost:3001/sign
 apiRoutes.post('/sign', function (req, res) {
 
   User.findOne({
@@ -88,21 +71,14 @@ apiRoutes.post('/sign', function (req, res) {
     } else {
       (new User(req.body)).save(function (err) {
         if (err) throw err;
-        res.json('User added successfully');
+        res.json({ caution: 'User added successfully' });
       })
     }
   })
 })
 
-// .then(user => {
-//   res.json('User added successfully');
-// })
-// .catch(err => {
-//   res.status(400).send("Unable to save to database");
-// });
-
 // route to authenticate a user
-// http://localhost:3001/api/authenticate
+// http://localhost:3001/auth
 apiRoutes.post('/auth', function (req, res) {
   // find the user
   User.findOne({
