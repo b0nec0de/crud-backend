@@ -48,7 +48,7 @@ app.use(cors());
 
 // Routes //
 
-// adding new user 
+// adding new user hardcoding
 
 app.get('/setup', function (req, res) {
   const user = new User({
@@ -73,6 +73,34 @@ app.get('/', function (req, res) {
 
 const apiRoutes = express.Router();
 
+// route to sign up a new user and add a record to the database
+apiRoutes.post('/sign', function (req, res) {
+
+  User.findOne({
+    email: req.body.email
+  }, function (err, user) {
+
+    if (err) throw err;
+
+    if (user) {
+      res.json('User exist already');
+
+    } else {
+      (new User(req.body)).save(function (err) {
+        if (err) throw err;
+        res.json('User added successfully');
+      })
+    }
+  })
+})
+
+// .then(user => {
+//   res.json('User added successfully');
+// })
+// .catch(err => {
+//   res.status(400).send("Unable to save to database");
+// });
+
 // route to authenticate a user
 // http://localhost:3001/api/authenticate
 apiRoutes.post('/auth', function (req, res) {
@@ -85,6 +113,7 @@ apiRoutes.post('/auth', function (req, res) {
 
     if (!user) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
+
     } else if (user) {
 
       // check if password matches
@@ -107,15 +136,13 @@ apiRoutes.post('/auth', function (req, res) {
           token: token
         });
       }
-
     }
-
   });
 });
 
 // route middleware to verify a token
 apiRoutes.use(function (req, res, next) {
-
+  console.log(req.body);
   // check header or url parameters or post parameters for token
   const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -156,28 +183,12 @@ apiRoutes.get('/users', function (req, res) {
 
 app.use('/', apiRoutes);
 
-
-TODO: //make another button (sign up)
-// saving to the database upon submit //
-
-// app.post('/auth', function (req, res) {
-//   const user = new User(req.body);
-
-//   user.save()
-//     .then(user => {
-//       res.json('User added successfully');
-//     })
-//     .catch(err => {
-//       res.status(400).send("unable to save to database");
-//     });
-// });
+app.listen(port);
+console.log('Magic happens at http://localhost:' + port);
 
 // app.listen(process.env.CRUD_PORT, function () {
 //   console.log(`Server is running on port ${process.env.CRUD_PORT}`);
 // });
-
-app.listen(port);
-console.log('Magic happens at http://localhost:' + port);
 
 
 
