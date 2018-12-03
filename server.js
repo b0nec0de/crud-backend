@@ -66,12 +66,12 @@ apiRoutes.post('/sign', function (req, res) {
     if (err) throw err;
 
     if (user) {
-      res.json('User exist already');
+      res.json({ message: 'User exist already' });
 
     } else {
       (new User(req.body)).save(function (err) {
         if (err) throw err;
-        res.json({ caution: 'User added successfully' });
+        res.json({ message: 'User added successfully' });
       })
     }
   })
