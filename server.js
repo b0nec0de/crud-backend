@@ -41,8 +41,9 @@ app.use(cors());
 //   .use(cookiesMiddleware())
 //   .use(function (req, res) {
 //     req.universalCookies.get(req.body.token)
-//     res.json(req.body.token)
+//     console.log(req.body.token)
 //   });
+
 
 // Routes //
 
@@ -89,21 +90,20 @@ apiRoutes.post('/auth', function (req, res) {
 
     if (!user) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
-
+      console.log('failed');
     } else if (user) {
 
       // check if password matches
       if (user.password !== req.body.password) {
         res.json({ success: false, message: 'Authentication failed. Wrong password.' });
       } else {
-
         // if user is found and password is right
         // create a token
         const payload = {
           admin: user.admin
         }
         const token = jwt.sign(payload, app.get('superSecret'), {
-          expiresIn: 86400 // expires in 24 hours
+          expiresIn: '1d'
         });
 
         res.json({
@@ -114,6 +114,8 @@ apiRoutes.post('/auth', function (req, res) {
       }
     }
   });
+  // console.log(res.json);
+  console.log(req.body);
 });
 
 // route middleware to verify a token
