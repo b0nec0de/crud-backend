@@ -3,8 +3,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
-// const cookieParser = require('cookie-parser');
-// const cookiesMiddleware = require('universal-cookie-express');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 dotenv.config()
@@ -16,7 +15,7 @@ const app = express();
 
 const port = process.env.CRUD_PORT;
 
-const User = require('./user');
+const User = require('./models/user');
 
 mongoose.connect(config.database, { useNewUrlParser: true });
 
@@ -31,32 +30,18 @@ app.use(bodyParser.json());
 
 app.use(morgan('dev'));
 
-app.use(cors());
+// app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-// app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-// app.use(cookieParser);
 
-// getting access to cookies //
-// app
-//   .use(cookiesMiddleware())
-//   .use(function (req, res) {
-//     req.universalCookies.get(req.body.token)
-//     console.log(req.body.token)
-//   });
-
+// use cookie parser
+app.use(cookieParser());
 
 // Routes //
 
-// basic route (http://localhost:3001)
-app.get('/', function (req, res) {
-  res.send('Hello! The API is at http://localhost:' + port);
-});
-
-// API ROUTES //
-
 const apiRoutes = express.Router();
 
-// route to sign up a new user and add a record to the database
+// route to register a new user and add a record to the database
 // http://localhost:3001/sign
 apiRoutes.post('/sign', function (req, res) {
 
@@ -90,7 +75,6 @@ apiRoutes.post('/auth', function (req, res) {
 
     if (!user) {
       res.json({ success: false, message: 'Authentication failed. User not found.' });
-      console.log('failed');
     } else if (user) {
 
       // check if password matches
@@ -105,6 +89,7 @@ apiRoutes.post('/auth', function (req, res) {
         const token = jwt.sign(payload, app.get('superSecret'), {
           expiresIn: '1d'
         });
+        res.cookie('token', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
 
         res.json({
           success: true,
@@ -114,19 +99,16 @@ apiRoutes.post('/auth', function (req, res) {
       }
     }
   });
-  // console.log(res.json);
-  console.log(req.body);
 });
 
 // route middleware to verify a token
 apiRoutes.use(function (req, res, next) {
-  console.log(req.body);
-  // check header or url parameters or post parameters for token
-  const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
+  // check header or url parameters or post parameters for token
+  const token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
+  console.log(token);
   // decode token
   if (token) {
-
     // verifies secret and checks exp
     jwt.verify(token, app.get('superSecret'), function (err, decoded) {
       if (err) {
@@ -134,6 +116,7 @@ apiRoutes.use(function (req, res, next) {
       } else {
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;
+        res.json({ success: true });
         next();
       }
     });
@@ -147,9 +130,14 @@ apiRoutes.use(function (req, res, next) {
   }
 });
 
+app.get('/checkToken', function (req, res) {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
 // route to show a random message (GET http://localhost:8080/api/)
-apiRoutes.get('/app', function (req, res) {
-  res.json({ message: 'Welcome to the cooolest app on earth!' });
+apiRoutes.get('/home', function (req, res) {
+  res.json({ success: true, message: 'Welcome to the cooolest app on earth!' });
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
@@ -163,10 +151,3 @@ app.use('/', apiRoutes);
 
 app.listen(port);
 console.log('Magic happens at http://localhost:' + port);
-
-// app.listen(process.env.CRUD_PORT, function () {
-//   console.log(`Server is running on port ${process.env.CRUD_PORT}`);
-// });
-
-
-
