@@ -137,7 +137,9 @@ apiRoutes.get('/checkToken', function (req, res) {
 
 // route to show a random message (GET http://localhost:8080/api/)
 apiRoutes.get('/home', function (req, res) {
-  res.json({ success: true, message: 'Welcome to the cooolest app on earth!' });
+  User.find({}, function (err, users) {
+    res.json(users);
+  });
 });
 
 // route to return all users (GET http://localhost:8080/api/users)
