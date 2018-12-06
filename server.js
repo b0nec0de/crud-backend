@@ -32,6 +32,7 @@ app.use(morgan('dev'));
 
 // app.use(cors());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.options('*', cors());
 
 
 // use cookie parser
@@ -89,7 +90,7 @@ apiRoutes.post('/auth', function (req, res) {
         const token = jwt.sign(payload, app.get('superSecret'), {
           expiresIn: '1d'
         });
-        res.cookie('token', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+        res.cookie('token', token, { maxAge: 900000, httpOnly: true });
 
         res.json({
           success: true,
@@ -106,7 +107,7 @@ apiRoutes.use(function (req, res, next) {
 
   // check header or url parameters or post parameters for token
   const token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
-  console.log(token);
+
   // decode token
   if (token) {
     // verifies secret and checks exp
@@ -116,7 +117,6 @@ apiRoutes.use(function (req, res, next) {
       } else {
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;
-        res.json({ success: true });
         next();
       }
     });
@@ -130,8 +130,8 @@ apiRoutes.use(function (req, res, next) {
   }
 });
 
-app.get('/checkToken', function (req, res) {
-  console.log(req.body);
+apiRoutes.get('/checkToken', function (req, res) {
+
   res.sendStatus(200);
 });
 
