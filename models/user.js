@@ -5,8 +5,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   name: { type: String },
   age: { type: Number },
-  city: { type: String },
   occupation: { type: String },
+  city: { type: String },
   admin: { type: Boolean }
 }, {
     collection: 'users'

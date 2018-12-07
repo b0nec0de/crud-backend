@@ -42,6 +42,30 @@ app.use(cookieParser());
 
 const apiRoutes = express.Router();
 
+// route to edit existing user
+// http://localhost:3001/edit
+apiRoutes.post('/edit', function (req, res) {
+
+  User.findOne({
+    email: req.body.email
+  }, function (err, user) {
+
+    if (err) throw err;
+
+    if (!user) {
+      res.json({ message: 'Such a user not found' });
+
+    } else {
+      user.set({ name: req.body.name, age: req.body.age, occupation: req.body.occupation, city: req.body.city });
+
+      user.save(function (err) {
+        if (err) throw err;
+        res.json({ success: true, message: 'User data edited' });
+      })
+    }
+  })
+})
+
 // route to register a new user and add a record to the database
 // http://localhost:3001/sign
 apiRoutes.post('/sign', function (req, res) {
@@ -53,7 +77,7 @@ apiRoutes.post('/sign', function (req, res) {
     if (err) throw err;
 
     if (user) {
-      res.json({ message: 'User exist already' });
+      res.json({ success: false, message: 'User exist already' });
 
     } else {
       (new User(req.body)).save(function (err) {
@@ -131,7 +155,6 @@ apiRoutes.use(function (req, res, next) {
 });
 
 apiRoutes.get('/checkToken', function (req, res) {
-
   res.sendStatus(200);
 });
 
@@ -142,12 +165,6 @@ apiRoutes.get('/home', function (req, res) {
   });
 });
 
-// route to return all users (GET http://localhost:8080/api/users)
-apiRoutes.get('/users', function (req, res) {
-  User.find({}, function (err, users) {
-    res.json(users);
-  });
-});
 
 app.use('/', apiRoutes);
 
