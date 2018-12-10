@@ -46,61 +46,75 @@ app.get('/', (req, res) => res.send('Hello World!'));
 
 const apiRoutes = express.Router();
 
+// route to delete existing user
+// http://localhost:3001/delete
+apiRoutes.delete('/delete', function (req, res) {
+
+	User.deleteOne({
+		email: req.body.email
+	}, function (err, user) {
+
+		if (err) throw err;
+
+		if (!user) {
+			res.json({ message: 'User not found' });
+
+		} else {
+			res.json({ success: true, message: 'User data edited' });
+		}
+	})
+})
+
 // route to edit existing user
 // http://localhost:3001/edit
-apiRoutes.post('/edit', function (req, res) {
+apiRoutes.put('/edit', function (req, res) {
 
-  User.findOne({
-    email: req.body.email
-  }, function (err, user) {
+	User.updateOne({
+		email: req.body.email
+	}, { $set: req.body }, function (err, user) {
 
-    if (err) throw err;
+		if (err) throw err;
 
-    if (!user) {
-      res.json({ message: 'Such a user not found' });
+		if (!user) {
+			res.json({ message: 'User not found' });
 
-    } else {
-      user.set({ name: req.body.name, age: req.body.age, occupation: req.body.occupation, city: req.body.city });
-
-      user.save(function (err) {
-        if (err) throw err;
-        res.json({ success: true, message: 'User data edited' });
-      })
-    }
-  })
+		} else {
+			res.json({ success: true, message: 'User data edited' });
+		}
+	})
 })
 
 // route to register a new user and add a record to the database
 // http://localhost:3001/sign
 apiRoutes.post('/sign', function (req, res) {
 
-  User.findOne({
-    email: req.body.email
-  }, function (err, user) {
+	User.findOne({
+		email: req.body.email
+	}, function (err, user) {
 
-    if (err) throw err;
+		if (err) throw err;
 
-    if (user) {
-      res.json({ success: false, message: 'User exist already' });
+		if (user) {
+			res.json({ success: false, message: 'User exist already' });
 
-    } else {
-      (new User(req.body)).save(function (err) {
-        if (err) throw err;
-        res.json({ message: 'User added successfully' });
-      })
-    }
-  })
+		} else {
+			(new User(req.body)).save(function (err) {
+				if (err) throw err;
+				res.json({ message: 'User added successfully' });
+			})
+		}
+	})
 })
 
 // route to authenticate a user
 // http://localhost:3001/auth
-apiRoutes.post('/auth', function(req, res) {
+apiRoutes.post('/auth', function (req, res) {
 	// find the user
 	User.findOne(
 		{
 			email: req.body.email
 		},
-		function(err, user) {
+		function (err, user) {
 			if (err) throw err;
 
 			if (!user) {
@@ -138,7 +152,7 @@ apiRoutes.post('/auth', function(req, res) {
 });
 
 // route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
+apiRoutes.use(function (req, res, next) {
 	// check header or url parameters or post parameters for token
 	const token =
 		req.body.token ||
@@ -149,7 +163,7 @@ apiRoutes.use(function(req, res, next) {
 	// decode token
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+		jwt.verify(token, app.get('superSecret'), function (err, decoded) {
 			if (err) {
 				return res.json({
 					success: false,
@@ -172,14 +186,14 @@ apiRoutes.use(function(req, res, next) {
 });
 
 apiRoutes.get('/checkToken', function (req, res) {
-  res.sendStatus(200);
+	res.sendStatus(200);
 });
 
 // route to show a random message (GET http://localhost:8080/api/)
 apiRoutes.get('/home', function (req, res) {
-  User.find({}, function (err, users) {
-    res.json(users);
-  });
+	User.find({}, function (err, users) {
+		res.json(users);
+	});
 });
 
 
