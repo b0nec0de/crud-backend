@@ -21,6 +21,8 @@ mongoose.connect(
 	config.database,
 	{ useNewUrlParser: true }
 );
+mongoose.set('useCreateIndex', true);
+
 
 const db = mongoose.connection;
 db.on('error', err => console.log('connection error', err));
