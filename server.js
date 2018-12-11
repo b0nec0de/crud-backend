@@ -57,7 +57,7 @@ apiRoutes.delete('/delete', function (req, res) {
 		if (err) throw err;
 
 		if (!user) {
-			res.json({ message: 'User not found' });
+			res.json({ success: false, message: 'User not found' });
 
 		} else {
 			res.json({ success: true, message: 'User data edited' });
@@ -76,7 +76,7 @@ apiRoutes.put('/edit', function (req, res) {
 		if (err) throw err;
 
 		if (!user) {
-			res.json({ message: 'User not found' });
+			res.json({ success: false, message: 'User not found' });
 
 		} else {
 			res.json({ success: true, message: 'User data edited' });
@@ -100,7 +100,7 @@ apiRoutes.post('/sign', function (req, res) {
 		} else {
 			(new User(req.body)).save(function (err) {
 				if (err) throw err;
-				res.json({ message: 'User added successfully' });
+				res.json({ success: true, message: 'User added successfully' });
 			})
 		}
 	})
@@ -138,7 +138,7 @@ apiRoutes.post('/auth', function (req, res) {
 					const token = jwt.sign(payload, app.get('superSecret'), {
 						expiresIn: '1d'
 					});
-					res.cookie('token', token, { maxAge: 900000, httpOnly: true });
+					res.cookie('token', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
 
 					res.json({
 						success: true,
