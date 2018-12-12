@@ -8,25 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://a_bondarev@bitbucket.org/msignat/crud-backend.git"
+    "url": "https://github.com/b0nec0de/crud-backend"
   },
   "author": "Anton Bondarev",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/msignat/crud-backend#readme",
   "dependencies": {
-    "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
-    "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.3.14",
     "mongoose-unique-validator": "^2.0.2",
-    "nodemon": "^1.18.6",
-    "universal-cookie": "^3.0.7",
-    "universal-cookie-express": "^3.0.7"
+    "nodemon": "^1.18.6"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
