@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 const routes = require('./routes/routes');
 
 dotenv.config();
@@ -14,7 +13,7 @@ const config = require('./config');
 
 const app = express();
 
-const port = process.env.CRUD_PORT || 3001;
+const port = process.env.PORT || 3001;
 
 mongoose.connect(
 	config.database,
@@ -38,6 +37,5 @@ app.use(cookieParser());
 
 app.use('/', routes);
 
-app.listen(3001);
-console.log('Magic happens at http://localhost:' + port);
+app.listen(port, () => console.log(`App listening on port ${port}!`))
 
